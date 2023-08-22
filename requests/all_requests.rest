@@ -4,8 +4,8 @@ POST http://localhost:3003/api/blogs
 content-type: application/json
 
 {
-    "title": "Divine Romance",
-    "author": "PY",
+    "title": "Holy Science",
+    "author": "Sri Yukteswar",
     "url": "www.yogananda.org",
     "likes": 99
 }
