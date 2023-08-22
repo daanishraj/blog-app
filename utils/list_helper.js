@@ -9,7 +9,39 @@ const totalLikes = (blogs) => {
   },0)
 }
 
+const mostBlogs = (blogs) => {
+  if (blogs.length === 0) {
+    return { author: '', blogs: 0 }
+  }
+
+  const authorMap = new Map()
+  blogs.forEach((blog) => {
+    if (authorMap.has(blog.author)) {
+      authorMap.set(blog.author, authorMap.get(blog.author) + 1)
+    } else {
+      authorMap.set(blog.author, 1)
+    }
+  })
+
+  const authorList = Array.from(authorMap.entries())
+  const initialValue = { author: authorList[0][0], blogs: authorList[0][1] }
+
+
+  return authorList.reduce((mostPopular, currAuthor) => {
+    if (currAuthor[1] > mostPopular.blogs) {
+      mostPopular.author = currAuthor[0]
+      mostPopular.blogs = currAuthor[1]
+    }
+    return mostPopular
+
+  }, initialValue)
+
+
+
+}
+
 module.exports = {
   dummy,
-  totalLikes
+  totalLikes,
+  mostBlogs
 }
