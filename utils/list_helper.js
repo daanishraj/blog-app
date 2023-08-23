@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 const dummy = (blogs) => {
   console.log(blogs)
   return 1
@@ -36,12 +38,21 @@ const mostBlogs = (blogs) => {
 
   }, initialValue)
 
+}
 
+const mostLikes = (blogs) => {
+  if (!blogs || blogs.length === 0) {
+    return null
+  }
+
+  const blogWithHighestLikes = _.maxBy(blogs, 'likes')
+  return _.pick(blogWithHighestLikes, ['author', 'likes'])
 
 }
 
 module.exports = {
   dummy,
   totalLikes,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }

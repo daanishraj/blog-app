@@ -55,7 +55,7 @@ test('dummy returns one', () => {
 describe('total likes', () => {
   test('calculates total likes correctly', () => {
     const result = listHelper.totalLikes(listOfBlogs)
-    expect(result).toBe(24)
+    expect(result).toBe(36)
   })
 })
 
@@ -67,4 +67,12 @@ describe('top blogger - part 1', () => {
     expect(result).toEqual(expectedResult)
   })
 
+})
+
+describe('top blogger - part 2', () => {
+  test('author with most likes', () => {
+    const result = listHelper.mostLikes(listOfBlogs)
+    const expectedResult = { author: 'Edsger W. Dijkstra', likes: 12 }
+    expect(result).toEqual(expectedResult)
+  })
 })
