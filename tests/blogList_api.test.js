@@ -112,6 +112,18 @@ test('the likes property assumes the correct default value when missing from req
   expect(response.body.likes).toBe(0)
 })
 
+test('when title or url properties are missing from payload, status of response is 400', async () => {
+  const newBlog = {
+    author: 'Sri Yukteswar',
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+
+  expect(response.status).toBe(400)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
