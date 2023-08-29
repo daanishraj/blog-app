@@ -10,6 +10,16 @@ content-type: application/json
     "likes": 108
 }
 ###
-GET http://localhost:3003/api/blogs/64edd09734246dd4a30d316b
+GET http://localhost:3003/api/blogs/64e356388b4314d21ef75391
 ###
 DELETE http://localhost:3003/api/blogs/64edd09734246dd4a30d316b
+###
+PUT http://localhost:3003/api/blogs/64e47bf9acf63ce52d5d1364
+content-type: application/json
+
+{
+    "title": "Holy Science - The Source",
+    "author": "Mahavtar Babaji",
+    "url": "www.yogananda.org",
+    "likes": 999
+}

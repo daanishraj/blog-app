@@ -148,6 +148,40 @@ test('a blog can be deleted with a valid id', async() => {
     .expect(404)
 })
 
+test('a blog can be successfully updated', async () => {
+  const originalNote =
+    {
+      id: '5a422a851b54a676234d17f7',
+      title: 'React patterns',
+      author: 'Michael Chan',
+      url: 'https://reactpatterns.com/',
+      likes: 7,
+    }
+
+
+  const originalBlog = await api
+    .get(`/api/blogs/${originalNote.id}`)
+    .expect(200)
+
+  expect(originalBlog.body.title).toBe(originalNote.title)
+
+  const updatedBody =
+  {
+    author: originalNote.author,
+    url: originalNote.url,
+    likes: originalNote.likes,
+    title: 'React patterns - revised edition',
+  }
+
+  const updatedBlog = await api
+    .put(`/api/blogs/${originalNote.id}`)
+    .send(updatedBody)
+    .expect(200)
+
+  expect(updatedBlog.body.title).toBe(updatedBody.title)
+  expect(updatedBlog.body.title).not.toBe(originalBlog.body.title)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
