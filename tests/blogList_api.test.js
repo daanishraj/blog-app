@@ -97,6 +97,21 @@ test('making a POST request successfully creates a new blog post', async () => {
   expect(titles).toContain(newBlog.title)
 })
 
+test('the likes property assumes the correct default value when missing from request body', async () => {
+  const newBlog = {
+    title: 'The Holy Science',
+    author: 'Sri Yukteswar',
+    url: 'http://www.yogananda.org',
+  }
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+
+  expect(response.status).toBe(201)
+  expect(response.body.likes).toBe(0)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
