@@ -75,6 +75,28 @@ test('the blog post object has a unique identifier which is called id', async() 
 
 })
 
+test('making a POST request successfully creates a new blog post', async () => {
+  const newBlog = {
+    title: 'Journey to Self Realization',
+    author: 'Paramhansa Yogananda',
+    url: 'http://www.yogananda.org',
+    likes: 108,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const titles = response.body.map(blog => blog.title)
+
+  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  expect(titles).toContain(newBlog.title)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
