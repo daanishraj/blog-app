@@ -4,8 +4,12 @@ POST http://localhost:3003/api/blogs
 content-type: application/json
 
 {
-    "title": "Holy Science",
+    "title": "Holy Science for Testing",
     "author": "Sri Yukteswar",
     "url": "www.yogananda.org",
-    "likes": 99
+    "likes": 108
 }
+###
+GET http://localhost:3003/api/blogs/64edd09734246dd4a30d316b
+###
+DELETE http://localhost:3003/api/blogs/64edd09734246dd4a30d316b

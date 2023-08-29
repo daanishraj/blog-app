@@ -124,6 +124,30 @@ test('when title or url properties are missing from payload, status of response 
   expect(response.status).toBe(400)
 })
 
+test('a single blog can be retrieved with the correct id', async() => {
+  const response =  await api.get('/api/blogs/5a422a851b54a676234d17f7')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  expect(response.body.title).toBe('React patterns')
+})
+
+test('a blog can be deleted with a valid id', async() => {
+  const idForRemoval = '5a422a851b54a676234d17f7'
+
+  await api
+    .get(`/api/blogs/${idForRemoval}`)
+    .expect(200)
+
+  await api
+    .delete(`/api/blogs/${idForRemoval}`)
+    .expect(204)
+
+  await api
+    .get(`/api/blogs/${idForRemoval}`)
+    .expect(404)
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
