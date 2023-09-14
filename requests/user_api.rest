@@ -4,7 +4,7 @@ content-type: application/json
 {
     "username": "Paramhansa",
     "name": "Mukunda",
-    "password": "yoga"
+    "password": "yo"
 }
 ###
 GET http://localhost:3003/api/users

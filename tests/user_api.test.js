@@ -11,7 +11,7 @@ beforeEach(async () => {
   await User.deleteMany({})
   const passwordHash = await bcrypt.hash('Gott', 10)
   const userDetails = {
-    username: 'rootuser',
+    username: 'root',
     name: 'Param',
     passwordHash,
   }
@@ -44,6 +44,71 @@ describe(('First tests'), () => {
     expect(usersAtEnd.length).toBe(usersAtStart.length + 1)
     expect(userNames).toContain(newUser.username)
 
+  })
+
+  test('username must be atleast 3 characters long', async () => {
+    const usersAtStart = await helpers.getUsersInDB()
+
+    const newUser = {
+      username: 'T',
+      name: 'shorty',
+      password: 'yoga'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('`username`')
+    expect(result.body.error).toContain('shorter than the minimum allowed length')
+
+    const usersAtEnd = await helpers.getUsersInDB()
+    expect(usersAtEnd.length).toBe(usersAtStart.length)
+
+  })
+
+  test('the username must be unique', async () => {
+    const usersAtStart = await helpers.getUsersInDB()
+
+    const newUser = {
+      username: 'root',
+      name: 'copy',
+      password: 'yoga'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('expected `username` to be unique')
+
+    const usersAtEnd = await helpers.getUsersInDB()
+    expect(usersAtEnd.length).toBe(usersAtStart.length)
+  })
+
+  test('password should be atleast 3 characters long', async () => {
+    const usersAtStart = await helpers.getUsersInDB()
+
+    const newUser = {
+      username: 'Test',
+      name: 'shortPassword',
+      password: 'hy'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('password must be at least 3 characters long')
+
+    const usersAtEnd = await helpers.getUsersInDB()
+    expect(usersAtEnd.length).toBe(usersAtStart.length)  
   })
 })
 
