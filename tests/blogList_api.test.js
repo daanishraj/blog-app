@@ -1,9 +1,14 @@
+// TODO: fix broken tests
+
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
-// const helper = require('../utils/list_helper')
+const User = require('../models/user')
 const api = supertest(app)
+
+const userId = new mongoose.Types.ObjectId('6502f462e7ab841c19ddb123')
 
 const initialBlogs = [
   {
@@ -12,6 +17,7 @@ const initialBlogs = [
     author: 'Michael Chan',
     url: 'https://reactpatterns.com/',
     likes: 7,
+    user: userId
   },
   {
     id: '5a422aa71b54a676234d17f8',
@@ -19,6 +25,7 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
+    user: userId
   },
   {
     id: '5a422b3a1b54a676234d17f9',
@@ -26,6 +33,7 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
     likes: 12,
+    user: userId
   },
   {
     id: '5a422b891b54a676234d17fa',
@@ -33,6 +41,7 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
     likes: 10,
+    user: userId
   },
   {
     id: '5a422ba71b54a676234d17fb',
@@ -40,6 +49,7 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
     likes: 0,
+    user: userId
   },
   {
     id: '5a422bc61b54a676234d17fc',
@@ -47,12 +57,38 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
     likes: 2,
+    user: userId
   }
 ]
+
+const saveInitialUser = async () => {
+
+  const passwordHash = await bcrypt.hash('Gott', 10)
+  // const userId = new mongoose.Types.ObjectId('6502f462e7ab841c19ddbvgg')
+  
+  const initialUser =
+    {
+      username: 'test',
+      name: 'spirit',
+      passwordHash,
+      _id: userId
+    }
+
+  const user = new User(initialUser)
+  console.log('created user is..', user )
+  await user.save()
+}
+
 
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(initialBlogs)
+  await User.deleteMany({})
+  // const firstUser = getInitialUser()
+  // const savedUser = await firstUser.save()
+  saveInitialUser()
+  // console.log({ savedUser })
+  // await User.insertMany(getInitialUsers())
 
 })
 
@@ -75,12 +111,14 @@ test('the blog post object has a unique identifier which is called id', async() 
 
 })
 
-test('making a POST request successfully creates a new blog post', async () => {
+test.only('making a POST request successfully creates a new blog post', async () => {
+  console.log('inside the test...')
   const newBlog = {
     title: 'Journey to Self Realization',
     author: 'Paramhansa Yogananda',
     url: 'http://www.yogananda.org',
     likes: 108,
+    userId: '6502f462e7ab841c19ddbvgg'
   }
 
   await api

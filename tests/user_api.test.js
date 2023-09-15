@@ -28,7 +28,8 @@ describe(('First tests'), () => {
     const newUser = {
       username: 'Paramhansa',
       name: 'Mukunda',
-      password: 'yoga'
+      password: 'yoga',
+      blogs:[]
     }
 
     await api
