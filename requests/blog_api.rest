@@ -2,13 +2,13 @@ GET http://localhost:3003/api/blogs
 ###
 POST http://localhost:3003/api/blogs
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inl1a3Rlc3dhciIsImlkIjoiNjUwMmY0OGJlN2FiODQxYzE5ZGRiY2IwIiwiaWF0IjoxNjk1MTIxNjQ4fQ.gqfx-MyISL67AR0yCIV0cFEyTAMF9SwkpZ05QqhGcLs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inl1a3Rlc3dhciIsImlkIjoiNjUwMmY0OGJlN2FiODQxYzE5ZGRiY2IwIiwiaWF0IjoxNjk1MTI0MjA1fQ.PaZKirNrS_TqD87uFEIKr2NWbUFueL0DH0Xfsf0y1kg
 
 {
-    "title": "Test",
+    "title": "Wa rum Wa rum",
     "author": "Sri Yukteswar",
     "url": "www.yogananda.org",
-    "likes": 108
+    "likes": 9
 }
 ###
 GET http://localhost:3003/api/blogs/64e356388b4314d21ef75391
