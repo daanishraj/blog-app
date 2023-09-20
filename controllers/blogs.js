@@ -1,18 +1,7 @@
 const blogRouter = require('express').Router()
-const jwt = require('jsonwebtoken')
 const Blog = require('../models/blog')
-const User = require('../models/user')
+const middleware = require('../utils/middleware')
 
-
-const getInvalidTokenResponse = (response) => {
-  response.status(401).json({ error: 'invalid token' })
-}
-
-const getInvalidAuthorizationHeaderResponse =  (response) => {
-  response.status(401).json({
-    error: 'invalid authorization header'
-  })
-}
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
@@ -20,7 +9,7 @@ blogRouter.get('/', async (request, response) => {
 
 })
 
-blogRouter.post('/', async (request, response) => {
+blogRouter.post('/', middleware.userExtractor, async (request, response) => {
   const { title, url } = request.body
 
   if (!title || !title.trim()) {
@@ -31,18 +20,7 @@ blogRouter.post('/', async (request, response) => {
     return response.status(400).json({ error: 'url is missing' })
   }
 
-  if (!request.token) {
-    return getInvalidAuthorizationHeaderResponse(response)
-  }
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-  if(!decodedToken.id) {
-    return getInvalidTokenResponse(response)
-  }
-
-
-  let user = await User.findById(decodedToken.id)
+  let user = request.user
 
   const blog = new Blog({
     title,
@@ -68,23 +46,12 @@ blogRouter.get('/:id', async (request, response) => {
   return response.status(404).end()
 })
 
-blogRouter.delete('/:id', async(request, response) => {
+blogRouter.delete('/:id', middleware.userExtractor, async(request, response) => {
   const blogForDeletion = await Blog.findById(request.params.id)
-
-  if (!request.token) {
-    return getInvalidAuthorizationHeaderResponse(response)
-  }
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-  if(!decodedToken.id) {
-    return getInvalidTokenResponse(response)
-  }
-
   const userWhoCreatedBlog = blogForDeletion.user
-  const loggedInUserid = decodedToken.id
+  const loggedInUser = request.user
 
-  if (userWhoCreatedBlog.toString()=== loggedInUserid) {
+  if (userWhoCreatedBlog.toString() === loggedInUser._id.toString()) {
     await Blog.findByIdAndRemove(request.params.id)
     return response.status(204).end()
   }
