@@ -3,6 +3,17 @@ const jwt = require('jsonwebtoken')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
+
+const getInvalidTokenResponse = (response) => {
+  response.status(401).json({ error: 'invalid token' })
+}
+
+const getInvalidAuthorizationHeaderResponse =  (response) => {
+  response.status(401).json({
+    error: 'invalid authorization header'
+  })
+}
+
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   return response.json(blogs)
@@ -21,15 +32,13 @@ blogRouter.post('/', async (request, response) => {
   }
 
   if (!request.token) {
-    response.status(401).json({
-      error: 'invalid authorization header'
-    })
+    return getInvalidAuthorizationHeaderResponse(response)
   }
 
   const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
   if(!decodedToken.id) {
-    response.status(401).json({ error: 'invalid token' })
+    return getInvalidTokenResponse(response)
   }
 
 
@@ -60,8 +69,26 @@ blogRouter.get('/:id', async (request, response) => {
 })
 
 blogRouter.delete('/:id', async(request, response) => {
-  await Blog.findByIdAndRemove(request.params.id)
-  return response.status(204).end()
+  const blogForDeletion = await Blog.findById(request.params.id)
+
+  if (!request.token) {
+    return getInvalidAuthorizationHeaderResponse(response)
+  }
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+  if(!decodedToken.id) {
+    return getInvalidTokenResponse(response)
+  }
+
+  const userWhoCreatedBlog = blogForDeletion.user
+  const loggedInUserid = decodedToken.id
+
+  if (userWhoCreatedBlog.toString()=== loggedInUserid) {
+    await Blog.findByIdAndRemove(request.params.id)
+    return response.status(204).end()
+  }
+  return response.status(401).json({ error: 'unauthorized user' })
 })
 
 blogRouter.put('/:id', async (request, response) => {

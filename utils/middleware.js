@@ -36,7 +36,6 @@ const tokenExtractor = (request, response, next) => {
     request.token = authorization.replace('Bearer ', '')
   }
 
-  logger.info('authorization header:', authorization)
   next()
 }
 
