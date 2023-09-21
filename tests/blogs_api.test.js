@@ -1,5 +1,3 @@
-// TODO: fix broken tests
-
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const supertest = require('supertest')
@@ -8,7 +6,9 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const api = supertest(app)
 
-const userId = new mongoose.Types.ObjectId('6502f462e7ab841c19ddb123')
+const initialUserId = new mongoose.Types.ObjectId('6502f462e7ab841c19ddb123')
+const initialUsername = 'test'
+const initialPassword = 'Gott'
 
 const initialBlogs = [
   {
@@ -17,7 +17,7 @@ const initialBlogs = [
     author: 'Michael Chan',
     url: 'https://reactpatterns.com/',
     likes: 7,
-    user: userId
+    user: initialUserId
   },
   {
     id: '5a422aa71b54a676234d17f8',
@@ -25,7 +25,7 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
-    user: userId
+    user: initialUserId
   },
   {
     id: '5a422b3a1b54a676234d17f9',
@@ -33,7 +33,7 @@ const initialBlogs = [
     author: 'Edsger W. Dijkstra',
     url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
     likes: 12,
-    user: userId
+    user: initialUserId
   },
   {
     id: '5a422b891b54a676234d17fa',
@@ -41,7 +41,7 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
     likes: 10,
-    user: userId
+    user: initialUserId
   },
   {
     id: '5a422ba71b54a676234d17fb',
@@ -49,7 +49,7 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
     likes: 0,
-    user: userId
+    user: initialUserId
   },
   {
     id: '5a422bc61b54a676234d17fc',
@@ -57,39 +57,46 @@ const initialBlogs = [
     author: 'Robert C. Martin',
     url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html',
     likes: 2,
-    user: userId
+    user: initialUserId
   }
 ]
 
 const saveInitialUser = async () => {
 
-  const passwordHash = await bcrypt.hash('Gott', 10)
-  // const userId = new mongoose.Types.ObjectId('6502f462e7ab841c19ddbvgg')
-  
+  const passwordHash = await bcrypt.hash(initialPassword, 10)
+
   const initialUser =
     {
-      username: 'test',
+      username: initialUsername,
       name: 'spirit',
       passwordHash,
-      _id: userId
+      _id: initialUserId
     }
 
   const user = new User(initialUser)
-  console.log('created user is..', user )
   await user.save()
 }
 
+const login = async () => {
+  const user = {
+    username: initialUsername,
+    password: initialPassword,
+  }
+
+  const response = await api
+    .post('/api/login')
+    .send(user)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  return response.body
+}
 
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(initialBlogs)
   await User.deleteMany({})
-  // const firstUser = getInitialUser()
-  // const savedUser = await firstUser.save()
-  saveInitialUser()
-  // console.log({ savedUser })
-  // await User.insertMany(getInitialUsers())
-
+  await saveInitialUser()
 })
 
 test('blogs are returned as json', async () => {
@@ -111,18 +118,20 @@ test('the blog post object has a unique identifier which is called id', async() 
 
 })
 
-test.only('making a POST request successfully creates a new blog post', async () => {
-  console.log('inside the test...')
+test('making a POST request successfully creates a new blog post', async () => {
+
+  const loginResponse = await login()
+
   const newBlog = {
     title: 'Journey to Self Realization',
     author: 'Paramhansa Yogananda',
     url: 'http://www.yogananda.org',
     likes: 108,
-    userId: '6502f462e7ab841c19ddbvgg'
   }
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${loginResponse.token} `)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -135,7 +144,31 @@ test.only('making a POST request successfully creates a new blog post', async ()
   expect(titles).toContain(newBlog.title)
 })
 
+test('making a POST request without a token fails to create a new blog post', async () => {
+  const newBlog = {
+    title: 'Journey to Self Realization',
+    author: 'Paramhansa Yogananda',
+    url: 'http://www.yogananda.org',
+    likes: 108,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const titles = response.body.map(blog => blog.title)
+
+  expect(response.body).toHaveLength(initialBlogs.length)
+  expect(titles).not.toContain(newBlog.title)
+})
+
 test('the likes property assumes the correct default value when missing from request body', async () => {
+  const loginResponse = await login()
+
   const newBlog = {
     title: 'The Holy Science',
     author: 'Sri Yukteswar',
@@ -144,6 +177,7 @@ test('the likes property assumes the correct default value when missing from req
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${loginResponse.token}`)
     .send(newBlog)
 
   expect(response.status).toBe(201)
@@ -151,12 +185,15 @@ test('the likes property assumes the correct default value when missing from req
 })
 
 test('when title or url properties are missing from payload, status of response is 400', async () => {
+  const loginResponse = await login()
+
   const newBlog = {
     author: 'Sri Yukteswar',
   }
 
   const response = await api
     .post('/api/blogs')
+    .set('Authorization', `Bearer ${loginResponse.token}`)
     .send(newBlog)
 
   expect(response.status).toBe(400)
@@ -171,7 +208,9 @@ test('a single blog can be retrieved with the correct id', async() => {
 })
 
 test('a blog can be deleted with a valid id', async() => {
-  const idForRemoval = '5a422a851b54a676234d17f7'
+  const loginResponse = await login()
+
+  const idForRemoval = initialBlogs[0].id
 
   await api
     .get(`/api/blogs/${idForRemoval}`)
@@ -179,6 +218,7 @@ test('a blog can be deleted with a valid id', async() => {
 
   await api
     .delete(`/api/blogs/${idForRemoval}`)
+    .set('Authorization', `Bearer ${loginResponse.token}`)
     .expect(204)
 
   await api
