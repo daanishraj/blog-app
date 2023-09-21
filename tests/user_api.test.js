@@ -1,4 +1,3 @@
-const config = require('../utils/config')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const supertest = require('supertest')
@@ -8,7 +7,7 @@ const helpers = require('./helpers/helper')
 
 const api = supertest(app)
 
-//TODO fix breaking tests
+const initialUserId = new mongoose.Types.ObjectId('6502f462e7ab841c19ddb123')
 
 beforeEach(async () => {
   await User.deleteMany({})
@@ -17,12 +16,12 @@ beforeEach(async () => {
     username: 'root',
     name: 'Param',
     passwordHash,
-    blogs: []
+    blogs: [],
+    _id: initialUserId
   }
 
   const user = new User(userDetails)
   await user.save()
-
 })
 
 describe(('First tests'), () => {
@@ -70,10 +69,9 @@ describe(('First tests'), () => {
 
     const usersAtEnd = await helpers.getUsersInDB()
     expect(usersAtEnd.length).toBe(usersAtStart.length)
-
   })
 
-  test.only('the username must be unique', async () => {
+  test('the username must be unique', async () => {
     const usersAtStart = await helpers.getUsersInDB()
 
     const newUser = {
@@ -112,7 +110,7 @@ describe(('First tests'), () => {
     expect(result.body.error).toContain('password must be at least 3 characters long')
 
     const usersAtEnd = await helpers.getUsersInDB()
-    expect(usersAtEnd.length).toBe(usersAtStart.length)  
+    expect(usersAtEnd.length).toBe(usersAtStart.length)
   })
 })
 
