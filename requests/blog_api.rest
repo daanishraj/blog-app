@@ -16,13 +16,14 @@ GET http://localhost:3003/api/blogs/64e356388b4314d21ef75391
 DELETE http://localhost:3003/api/blogs/650425faf26d757308d3ed08
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Inl1a3Rlc3dhciIsImlkIjoiNjUwMmY0OGJlN2FiODQxYzE5ZGRiY2IwIiwiaWF0IjoxNjk1MTk3NTc5fQ.40BwjJA9uvp_uxtwJV_FXF0mKsl9qbGtoXEb3HTbPAU
 ###
-PUT http://localhost:3003/api/blogs/64e47bf9acf63ce52d5d1364
+PUT http://localhost:3003/api/blogs/6502f74c54bba94c995a01e6
 content-type: application/json
 
 {
-    "title": "Holy Science - The Source",
-    "author": "Mahavtar Babaji",
+    "title": "Journey to Self Realization",
+    "author": "Paramhansa Yogananda",
     "url": "www.yogananda.org",
-    "likes": 999
+    "likes": 108,
+    "userId": "6502f462e7ab841c19ddbcac"
 }
 ###

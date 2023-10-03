@@ -2,7 +2,6 @@ const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const middleware = require('../utils/middleware')
 
-
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
   return response.json(blogs)
@@ -59,10 +58,19 @@ blogRouter.delete('/:id', middleware.userExtractor, async(request, response) => 
 })
 
 blogRouter.put('/:id', async (request, response) => {
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, request.body, { new: true })
-  if (updatedBlog) {
-    return response.json(updatedBlog)
+  const { title, url, author, likes, userId } = request.body
+  const payloadForUpdate = {
+    title,
+    url,
+    author,
+    likes,
+    user: userId
   }
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, payloadForUpdate, { new: true })
+  if (!updatedBlog) {
+    return response.status(404).json({ error: 'invalid id' })
+  }
+  return response.json(updatedBlog)
 })
 
 module.exports = blogRouter
