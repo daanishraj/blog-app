@@ -23,7 +23,7 @@ content-type: application/json
     "title": "Journey to Self Realization",
     "author": "Paramhansa Yogananda",
     "url": "www.yogananda.org",
-    "likes": 108,
+    "likes": 1952,
     "userId": "6502f462e7ab841c19ddbcac"
 }
 ###

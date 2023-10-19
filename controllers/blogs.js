@@ -67,10 +67,14 @@ blogRouter.put('/:id', async (request, response) => {
     user: userId
   }
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, payloadForUpdate, { new: true })
+
   if (!updatedBlog) {
     return response.status(404).json({ error: 'invalid id' })
   }
-  return response.json(updatedBlog)
+
+  const updatedBlogWithUserDetails  = await updatedBlog.populate('user', { username: 1, name: 1 })
+
+  return response.json(updatedBlogWithUserDetails)
 })
 
 module.exports = blogRouter
